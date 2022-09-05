@@ -5,13 +5,12 @@
 
 SHA_256::SHA_256(std::string& inputStr) : L(0), m_blockLength(0) {
 
-
 	// start
 	StoreMessageInASCII(inputStr);
 	Create512BitChunks();
 	MessageScheduleFromEachBlock();
 	CompressMessageBlock();
-	ConvertHashToHex();
+	ConvertBinaryToHex();
 //	ReturnHashedHexValues();
 
 	// Display
@@ -19,6 +18,7 @@ SHA_256::SHA_256(std::string& inputStr) : L(0), m_blockLength(0) {
 }
 
 void SHA_256::StoreMessageInASCII(std::string& inputStr) {
+	// Add Input Message
 	for (std::size_t i = 0; i <= inputStr.length() - 1; i++) {
 		_InputMessage.push_back((unsigned int)inputStr[i]);
 	}
@@ -29,16 +29,21 @@ void SHA_256::StoreMessageInASCII(std::string& inputStr) {
 	L = (inputStr.length() * 8); // Original Length of Input Message
 }
 
-
 void SHA_256::Create512BitChunks() {
+	// Create a New Block
 	Block *block = new Block;
+	std::uint8_t block_len = 56;
+
 	std::deque<std::uint8_t> endBits = Bit64To8Bit(L);
+
 	int counter = 0;
 	for (std::size_t i = 0; i <= _InputMessage.size() - 1; i++) {
 		//assert(counter % 65 == 0);
 		block->_512BitDataChunks[counter++] = _InputMessage[i];
+
 		// Create block of 56 bytes [448 bits] with 64 bit reserve
-		if (counter % 56 == 0) {
+		if (counter % block_len == 0) {
+
 			// Add endBits
 			for (std::size_t i = 0; i <= 7; i++) {
 				block->_512BitDataChunks[counter++] = endBits[i];
@@ -61,8 +66,7 @@ void SHA_256::Create512BitChunks() {
 			}
 			// push_back the block
 			_blocks.push_back(*block);
-			// End of Block, Reset Counter
-			counter = 0;
+			delete block;
 		}
 	}
 }
@@ -85,17 +89,15 @@ void SHA_256::MessageScheduleFromEachBlock() {
 		}
 		// Process the next 48 words to fill the msgBlock
 		for (std::size_t k = counter; k <= 63; k++) {
-			// Generate the 48 Words : w[i] := s1[i-2] + w[i-7] + s0[i-15] + w[i-16] + 
-			std::uint32_t generatedWord = σ_Sigma1(msgBlock._512BitMsgBlock[k - 2]) + msgBlock._512BitMsgBlock[k - 7] 
-										+ σ_Sigma0(msgBlock._512BitMsgBlock[k - 15]) + msgBlock._512BitMsgBlock[k - 16];
-			msgBlock._512BitMsgBlock[k] = generatedWord;
+			// Generate the 48 Words : w[i] := s1[k-2] + w[k-7] + s0[k-15] + w[k-16] 
+			msgBlock._512BitMsgBlock[k] = σ_Sigma1(msgBlock._512BitMsgBlock[k - 2]) + msgBlock._512BitMsgBlock[k - 7] + 
+										  σ_Sigma0(msgBlock._512BitMsgBlock[k - 15]) + msgBlock._512BitMsgBlock[k - 16];
 		}
 		// now push the block back and process the next block
 		_msgBlock.push_back(msgBlock);
 		counter = 0;
 	}
 }
-
 
 void SHA_256::CompressMessageBlock() {
 
@@ -121,11 +123,11 @@ void SHA_256::CompressMessageBlock() {
 			/*H*/	_workingVariables[7] = _workingVariables[6];
 			/*G*/	_workingVariables[6] = _workingVariables[5];
 			/*F*/	_workingVariables[5] = _workingVariables[4];
-			/*E*/	_workingVariables[4] = (_workingVariables[3] + tempBit1);
+			/*E*/	_workingVariables[4] = ( _workingVariables[3] + tempBit1 );
 			/*D*/	_workingVariables[3] = _workingVariables[2];
 			/*C*/	_workingVariables[2] = _workingVariables[1];
 			/*B*/	_workingVariables[1] = _workingVariables[0];
-			/*A*/	_workingVariables[0] = (tempBit1 + tempBit2);
+			/*A*/	_workingVariables[0] = ( tempBit1 + tempBit2 );
 
 		}
 
@@ -138,6 +140,10 @@ void SHA_256::CompressMessageBlock() {
 	for (std::size_t i = 0; i <= 7; i++) {
 		_compressedMessage[i] = _hashValues[i];
 	}
+}
+
+void SHA_256::Digest() {
+
 }
 
 //void SHA_256::CompressMessageBlock() {
@@ -190,7 +196,6 @@ void SHA_256::CompressMessageBlock() {
 //	}
 //}
 
-
 std::string SHA_256::ReturnHashedHexValues() {
 	return _HashedStringInHex;
 }
@@ -218,7 +223,7 @@ std::uint32_t SHA_256::σ_Sigma0(std::uint32_t word) {
 }
 // LowerCase sigma1 : Shift bits of word X amount and XOR them together
 std::uint32_t SHA_256::σ_Sigma1(std::uint32_t word) {
-	return RotateBitsRight(word, 17) ^ RotateBitsRight(word, 19) ^  (word >> 10);
+	return RotateBitsRight(word, 17) ^ RotateBitsRight(word, 19) ^ (word >> 10);
 }
 // UpperCase Sigma0 : Shifts bits of word X amount and XOR them together
 std::uint32_t SHA_256::Σ_Sigma0(std::uint32_t word) {
@@ -265,7 +270,6 @@ void SHA_256::decToBinary(std::uint8_t n, bool SigBits, bool AllBits) {
 	}
 }
 
-
 void SHA_256::decToBinary32(std::uint32_t n, bool SigBits, bool AllBits) {
 	if (AllBits) {
 		if (n == 0) {
@@ -298,7 +302,6 @@ void SHA_256::decToBinary32(std::uint32_t n, bool SigBits, bool AllBits) {
 		}
 	}
 }
-
 
 void SHA_256::decToBinary64(std::uint64_t n, bool SigBits, bool AllBits) {
 	if (AllBits) {
@@ -336,6 +339,7 @@ void SHA_256::decToBinary64(std::uint64_t n, bool SigBits, bool AllBits) {
 void SHA_256::View(bool bytes, bool message, bool chunk, bool messageSchedule, bool compressedMessage, bool hashResult) {
 
 	if (message) {
+		std::cout << "----------------- Printing Message -----------------\n";
 		std::cout << "Input Message[" << _InputMessage.size() << "]: [";
 		for (std::size_t i = 0; i <= _InputMessage.size() - 2; i++) { 
 			std::cout << _InputMessage[i] << ", ";
@@ -344,6 +348,7 @@ void SHA_256::View(bool bytes, bool message, bool chunk, bool messageSchedule, b
 	}
 	if (bytes) {
 		//--------- Displays Bytes In Integer Form ------
+		std::cout << "----------------- Printing Bits -----------------\n";
 		std::cout << "Bytes[" << _InputMessage.size() << "]: [";
 		for (auto i : _InputMessage) {
 			std::cout << (int)i << ", ";
@@ -358,6 +363,7 @@ void SHA_256::View(bool bytes, bool message, bool chunk, bool messageSchedule, b
 		std::cout << std::endl;
 	}
 	if (chunk) {
+		std::cout << "----------------- Bit Chunks -----------------\n";
 		std::cout << std::endl << "BlockData: (OriginalMessageInBits = " <<  L << ")"<< std::endl;
 		for (std::size_t i = 0; i <= _blocks.size() - 1; i++) {
 			std::cout << "\n\n Block[" << i << "]" << std::endl;
@@ -368,6 +374,7 @@ void SHA_256::View(bool bytes, bool message, bool chunk, bool messageSchedule, b
 	}
 
 	if (messageSchedule) {
+		std::cout << "\n----------------- Message Schedule -----------------\n";
 		std::cout << "\n\nMessageSchedule[" << _msgBlock.size() << "] -> [ ";
 		for (std::size_t i = 0; i <= _msgBlock.size() - 1; i++) {
 			for (std::size_t j = 0; j < 64; j++) {
@@ -381,6 +388,7 @@ void SHA_256::View(bool bytes, bool message, bool chunk, bool messageSchedule, b
 	}
 
 	if (compressedMessage) {
+		std::cout << "\n----------------- Compress Message -----------------\n";
 		std::cout << "\n\nThis Is the Final Message Block, Which can be converted to HEXADECIMAL.\n\n";
 		for (auto i : _compressedMessage) {
 			decToBinary32(i, true, false); std::cout << std::endl;
@@ -389,7 +397,20 @@ void SHA_256::View(bool bytes, bool message, bool chunk, bool messageSchedule, b
 	}
 
 	if (hashResult) {
+		std::cout << "----------------- Final Hash -----------------\n";
 		std::cout << "Final Hash: " << _HashedStringInHex << std::endl;
+
+		if (_HashedStringInHex == "19F8B22AAF4B0DBA87FFCFA65D55D3E2A0870B23C6EE9CCC796C91F77554D9E1" ||
+			_HashedStringInHex == "92DF77F0BA1468AB5148DB0BC090CEDB88B8EE3FA3CA14FC05E44C426D73F78B" ||
+			_HashedStringInHex == "BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD" ||
+			_HashedStringInHex == "21B9144A8F751450CBEBFC02B7797AD0E688DBF884EAEAF80044EC1FCB2470A1" ||
+			_HashedStringInHex == "88D4266FD4E6338D13B845FCF289579D209C897823B9217DA3E161936F031589" ||
+			_HashedStringInHex == "B94D27B9934D3E08A52E52D7DA7DABFAC484EFE37A5380EE9088F7ACE2EFCDE9" || 
+			_HashedStringInHex == "DE7D1B721A1E0632B7CF04EDF5032C8ECFFA9F9A08492152B926F1A5A7E765D7" )
+		{ 
+			std::cout << "Successful\n"; 
+		}
+		else { std::cout << "Unsuccessful\n"; }
 	}
 }
 
@@ -411,14 +432,14 @@ std::deque<std::uint8_t> SHA_256::Bit64To8Bit(std::uint64_t bigBits) {
 	return orderedSmallBits;
 }
 
-void SHA_256::ConvertHashToHex() {
+void SHA_256::ConvertBinaryToHex() {
 	// Take the _hashedValues and convert
 	std::string hexString = "";
 
 	// char array to store hexadecimal number
 	std::deque<char> hexaDeciNum;
 
-	//int k = 0;
+	// int k = 0;
 	for (std::size_t i = 0; i <= 7; i++) {
 
 		// counter for hexadecimal number array
@@ -442,6 +463,11 @@ void SHA_256::ConvertHashToHex() {
 			_hashValues[i] = _hashValues[i] / 16;
 		}
 
+		// Ensure 8 values are being placed into the hexString variable
+		while (hexaDeciNum.size() < 8) {
+			hexaDeciNum.push_back('0');
+		}
+
 		for (int j = hexaDeciNum.size() - 1; j >= 0; j--){
 			hexString += hexaDeciNum[j];
 		}
@@ -449,43 +475,5 @@ void SHA_256::ConvertHashToHex() {
 
 	}
 	_HashedStringInHex = hexString;
+	std::cout << "Test: " << _HashedStringInHex << std::endl;
 }
-
-std::string SHA_256::ConvertHashToHex(std::uint32_t hash) {
-	// Take the _hashedValues and convert
-	std::string hexString = "";
-
-	// char array to store hexadecimal number
-	std::deque<char> hexaDeciNum;
-
-	//int k = 0;
-		// counter for hexadecimal number array
-	while (hash != 0) {
-		// temporary variable to store remainder
-		int temp = 0;
-
-		// storing remainder in temp variable.
-		temp = hash % 16;
-
-		// check if temp < 10
-		if (temp < 10) {
-			hexaDeciNum.push_back(temp + 48);
-			//k++;
-		}
-		else {
-			hexaDeciNum.push_back(temp + 55);
-			//k++;
-		}
-
-		hash = hash / 16;
-	}
-
-	for (int j = hexaDeciNum.size() - 1; j >= 0; j--) {
-		hexString += hexaDeciNum[j];
-	}
-
-	_HashedStringInHex = hexString;
-
-	return hexString;
-}
-

@@ -8,7 +8,7 @@
 #pragma once
 
 struct Block {
-	std::uint8_t _512BitDataChunks[64];	
+	std::uint8_t _512BitDataChunks[64] = {};
 };
 
 struct MsgBlock {
@@ -29,6 +29,8 @@ public:
 	// Display The Computed Hash Value
 	std::string ReturnHashedHexValues();
 
+	void Digest();
+
 	// ---- Bitwise Operators ----
 	std::uint32_t RotateBitsRight(std::uint32_t, std::uint32_t);
 	std::uint32_t ShiftBitsLeft(std::uint32_t, std::uint32_t);
@@ -45,8 +47,7 @@ public:
 	void decToBinary32(std::uint32_t, bool, bool);
 	void decToBinary64(std::uint64_t, bool, bool);
 	std::deque<std::uint8_t> Bit64To8Bit(std::uint64_t);
-	void ConvertHashToHex();
-	std::string ConvertHashToHex(std::uint32_t);
+	void ConvertBinaryToHex();
 	void View(bool, bool, bool, bool, bool, bool);
 
 private:
