@@ -55,6 +55,7 @@ void SHA_256::Create512BitChunks() {
 			block = new Block;
 			counter = 0;
 		}
+		// ERROR: When String length is greater than 56 but less than 64....
 		else if (i == _InputMessage.size() - 1) { 
 
 			// Pad Zeros till 448 bits
@@ -354,6 +355,8 @@ void SHA_256::View(bool bytes, bool message, bool chunk, bool messageSchedule, b
 			_HashedStringInHex == "D93BECA6EFD0421B314C081066064AC0E371B306F715CC0935B2879E249BA9DF" ||
 			_HashedStringInHex == "096DF7313776EE3CAE836CFFCC5EFBD5D9B941113D377433F66BD49BDD4208D9" ||
 			_HashedStringInHex == "B3EFD5D2273A7F9DDBA983CA879F24A0D6CAF596F56A8C8FAB16FA85B6688BEA" ||
+			_HashedStringInHex == "67038B139D8CE3896C6553FAF6ADE7903B09EC2A87CAA68365939A7BEA76B68D" ||
+			_HashedStringInHex == "50380F922E8F5CD2391F6D2B799882CEB816345C38FE7D0210F5ABD6B15950E5" || 
 			_HashedStringInHex == "36A9E7F1C95B82FFB99743E0C5C4CE95D83C9A430AAC59F84EF3CBFAB6145068" )
 		{ 
 			std::cout << "Successful\n"; 
