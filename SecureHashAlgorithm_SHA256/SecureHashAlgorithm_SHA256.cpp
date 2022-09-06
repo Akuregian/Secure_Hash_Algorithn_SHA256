@@ -40,6 +40,7 @@ void SHA_256::Create512BitChunks() {
 		//assert(counter % 65 == 0);
 		block->_512BitDataChunks[counter++] = _InputMessage[i];
 
+		// ERROR: When String length == 63..
 		// Create block of 56 bytes [448 bits] with 64 bit reserve
 		if (counter % 64 == 0) {
 
@@ -55,13 +56,37 @@ void SHA_256::Create512BitChunks() {
 			block = new Block;
 			counter = 0;
 		}
-		// ERROR: When String length is greater than 56 but less than 64....
 		else if (i == _InputMessage.size() - 1) { 
+			// If Counter is less than 56, Pad Zeros
+			if (counter < 56) {
+				// Pad Zeros till 448 bits
+				int K = (56 - counter);
+				for (std::size_t i = 0; i < K; i++) {
+					block->_512BitDataChunks[counter++] = std::uint8_t(0);
+				}
+			}
+			// If Counter is greater than 56, We need a new block
+			if (counter > 56) {
+				std::cout << "Need a New Block\n";
+				Block* newBlock = new Block();
+				int counter_1 = 0;
+				for (int i = 56; i < 64; i++) {
+					newBlock->_512BitDataChunks[counter_1] = block->_512BitDataChunks[i];
+				}
 
-			// Pad Zeros till 448 bits
-			int K = (56 - counter);
-			for (std::size_t i = 0; i < K; i++) {
-				block->_512BitDataChunks[counter++] = std::uint8_t(0);
+				// Pad new block
+				int K = (56 - counter_1);
+				for (std::size_t i = 0; i < K; i++) {
+					newBlock->_512BitDataChunks[counter_1++] = std::uint8_t(0);
+				}
+
+				// Add endBits
+				for (std::size_t i = 0; i <= 7; i++) {
+					newBlock->_512BitDataChunks[counter_1++] = endBits[i];
+				}
+				_blocks.push_back(*block);
+				_blocks.push_back(*newBlock);
+				return;
 			}
 
 			// Add endBits
@@ -357,6 +382,8 @@ void SHA_256::View(bool bytes, bool message, bool chunk, bool messageSchedule, b
 			_HashedStringInHex == "B3EFD5D2273A7F9DDBA983CA879F24A0D6CAF596F56A8C8FAB16FA85B6688BEA" ||
 			_HashedStringInHex == "67038B139D8CE3896C6553FAF6ADE7903B09EC2A87CAA68365939A7BEA76B68D" ||
 			_HashedStringInHex == "50380F922E8F5CD2391F6D2B799882CEB816345C38FE7D0210F5ABD6B15950E5" || 
+			_HashedStringInHex == "6C1E9F830562DC9CBC1F4DC8C47F2813653E6784F99461BF28118E249FA40286" ||
+			_HashedStringInHex == "14C8ADA07D94072087CBCC07723F95DB4421E49E0E39E9950B1F3D0BC8980EB6" ||
 			_HashedStringInHex == "36A9E7F1C95B82FFB99743E0C5C4CE95D83C9A430AAC59F84EF3CBFAB6145068" )
 		{ 
 			std::cout << "Successful\n"; 
