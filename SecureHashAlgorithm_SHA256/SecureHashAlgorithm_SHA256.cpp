@@ -10,7 +10,7 @@ SHA_256::SHA_256() : L(0), m_blockLength(0) {
 	}
 
 	for (int i = 0; i <= 7; i++) {
-		_workingVariables[i] = _hashValues[i];
+		_hashWorkers[i] = _hashValues[i];
 	}
 }
 
@@ -20,6 +20,7 @@ std::string SHA_256::Digest(std::string inputStr) {
 	MessageScheduleFromEachBlock();
 	CompressMessageBlock();
 	ConvertBinaryToHex();
+	WipeData();
 	return _HashedStringInHex;
 }
 
@@ -174,7 +175,7 @@ void SHA_256::CompressMessageBlock() {
 
 		// Initialize the _workingVariables, if second chunk then set with the values from the previous chunk
 		for (std::size_t k = 0; k <= 7; k++) {
-			_workingVariables[k] = _hashValues[k];
+			_workingVariables[k] = _hashWorkers[k];
 		}
 
 		for (std::size_t j = 0; j <= 63; j++) { // --> repeats for every word in message scheudle
@@ -200,12 +201,27 @@ void SHA_256::CompressMessageBlock() {
 
 		// Take the Inital hash values and add on the new hashed values
 		for (std::size_t m = 0; m <= 7; m++) {
-			_hashValues[m] += _workingVariables[m] & 0xFFFFFFFF;
+			_hashWorkers[m] += _workingVariables[m] & 0xFFFFFFFF;
 		}
 	}
 	// Store the compressed Message (Testing purposes)
 	for (std::size_t i = 0; i <= 7; i++) {
-		_compressedMessage[i] = _hashValues[i];
+		_compressedMessage[i] = _hashWorkers[i];
+	}
+}
+
+void SHA_256::WipeData() {
+	_InputMessage.clear();
+	_blocks.clear();
+	_msgBlock.clear();
+	for (int i = 0; i <= 7; i++) {
+		_hashWorkers[i] = _hashValues[i];
+	}
+	for (int i = 0; i <= 7; i++) {
+		_compressedMessage[i] = 0;
+	}
+	for (int i = 0; i <= 7; i++) {
+		_workingVariables[i] = 0;
 	}
 }
 
@@ -438,12 +454,12 @@ void SHA_256::ConvertBinaryToHex() {
 	for (std::size_t i = 0; i <= 7; i++) {
 
 		// counter for hexadecimal number array
-		while (_hashValues[i] != 0) {
+		while (_hashWorkers[i] != 0) {
 			// temporary variable to store remainder
 			int temp = 0;
 
 			// storing remainder in temp variable.
-			temp = _hashValues[i] % 16;
+			temp = _hashWorkers[i] % 16;
 
 			// check if temp < 10
 			if (temp < 10) {
@@ -455,7 +471,7 @@ void SHA_256::ConvertBinaryToHex() {
 				//k++;
 			}
 
-			_hashValues[i] = _hashValues[i] / 16;
+			_hashWorkers[i] = _hashWorkers[i] / 16;
 		}
 
 		// Ensure 8 values are being placed into the hexString variable

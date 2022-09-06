@@ -4,14 +4,11 @@
 	std::shared_ptr<SHA_256> sha256 = std::make_shared<SHA_256>();
 
 	// call Digest function passing in a string, which returns your hashed value
-	std::string hashed_value = sha256->Digest("String");
-
-	// If you want to create a new hash, re-instantiate sha256 with a new pointer. (This will be fixed in the future)
+	std::string hashed_value0 = sha256->Digest("String0");
+	std::string hashed_value1 = sha256->Digest("String1");
+	std::string hashed_value2 = sha256->Digest("String2");
 
 ```
-** Currently the class Instance only implements a hash at a time, as the varibales used haven't been reset to the original values..  
-	In the future I will fix this so that once instance can spit out mulitple hash values.
-
 
 Secure Hash Algorithm 2 (SHA-2) in which SHA-256 is a part of, is one of the most popular hashing algorithm
 that was devoloped by the National Security Agency (NSA)
