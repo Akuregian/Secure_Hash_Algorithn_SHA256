@@ -3,6 +3,7 @@
 
 
 void TestValues() {
+	// Correct Hash Results
 	std::deque<std::string> hashed_answers =
 	{
 		"88D4266FD4E6338D13B845FCF289579D209C897823B9217DA3E161936F031589",
@@ -16,6 +17,7 @@ void TestValues() {
 		"14C8ADA07D94072087CBCC07723F95DB4421E49E0E39E9950B1F3D0BC8980EB6",
 		"67038B139D8CE3896C6553FAF6ADE7903B09EC2A87CAA68365939A7BEA76B68D"
 	};
+	// Input String
 	std::deque<std::string> input_values =
 	{
 		"abcd",
@@ -29,6 +31,7 @@ void TestValues() {
 		"hello world Good Morning, adding some more to this to finnnnnnnn",
 		"hello world Good Morning, adding some more to this to finnnnnnn"
 	};
+	// Results from SHA256 HASH
 	std::deque<std::string> _hashedvalues;
 
 	for (int i = 0; i < input_values.size(); i++) {
@@ -44,7 +47,6 @@ void TestValues() {
 		}
 	}
 }
-
 
 int main()
 {

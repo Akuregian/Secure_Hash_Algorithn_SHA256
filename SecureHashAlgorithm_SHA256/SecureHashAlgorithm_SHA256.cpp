@@ -15,15 +15,11 @@ SHA_256::SHA_256() : L(0), m_blockLength(0) {
 }
 
 std::string SHA_256::Digest(std::string inputStr) {
-	// start
 	StoreMessageInASCII(inputStr);
 	Create512BitChunks();
 	MessageScheduleFromEachBlock();
 	CompressMessageBlock();
 	ConvertBinaryToHex();
-	// Display
-//	View(true, true, true, false, true, true);
-
 	return _HashedStringInHex;
 }
 
