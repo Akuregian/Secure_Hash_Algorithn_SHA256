@@ -50,7 +50,13 @@ void TestValues() {
 
 int main()
 {
-	TestValues();
+	// Used for Debuggin/Test
+	//TestValues();
+
+	SHA_256 sha256;
+	std::string hash = sha256.Digest("This is a test string to be converted");
+	std::cout << "Hash: " << hash << std::endl;
+
 	std::cin.get();
 	return 0;
 }
