@@ -4,17 +4,27 @@
 #include "SecureHashAlgorithm_SHA256.h"
 #include <bitset>
 
-SHA_256::SHA_256(std::string& inputStr) : L(0), m_blockLength(0) {
+SHA_256::SHA_256() : L(0), m_blockLength(0) {
+	for (int i = 0; i <= 7; i++) {
+		_compressedMessage[i] = std::uint32_t(0);
+	}
 
+	for (int i = 0; i <= 7; i++) {
+		_workingVariables[i] = _hashValues[i];
+	}
+}
+
+std::string SHA_256::Digest(std::string inputStr) {
 	// start
 	StoreMessageInASCII(inputStr);
 	Create512BitChunks();
 	MessageScheduleFromEachBlock();
 	CompressMessageBlock();
 	ConvertBinaryToHex();
-
 	// Display
-	View(true, true, true, false, true, true);
+//	View(true, true, true, false, true, true);
+
+	return _HashedStringInHex;
 }
 
 void SHA_256::StoreMessageInASCII(std::string& inputStr) {
@@ -90,7 +100,6 @@ void SHA_256::Create512BitChunks() {
 			}
 			// If Counter is greater than 56, We need a new block
 			if (counter > 56) {
-				std::cout << "Need a New Block\n";
 				Block newBlock = CreateNew512BitChunk(block, endBits, true);
 				_blocks.push_back(*block);
 				_blocks.push_back(newBlock);
@@ -403,27 +412,6 @@ void SHA_256::View(bool bytes, bool message, bool chunk, bool messageSchedule, b
 	if (hashResult) {
 		std::cout << "----------------- Final Hash -----------------\n";
 		std::cout << "Final Hash: " << _HashedStringInHex << std::endl;
-
-		if (_HashedStringInHex == "19F8B22AAF4B0DBA87FFCFA65D55D3E2A0870B23C6EE9CCC796C91F77554D9E1" ||
-			_HashedStringInHex == "92DF77F0BA1468AB5148DB0BC090CEDB88B8EE3FA3CA14FC05E44C426D73F78B" ||
-			_HashedStringInHex == "BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD" ||
-			_HashedStringInHex == "21B9144A8F751450CBEBFC02B7797AD0E688DBF884EAEAF80044EC1FCB2470A1" ||
-			_HashedStringInHex == "88D4266FD4E6338D13B845FCF289579D209C897823B9217DA3E161936F031589" ||
-			_HashedStringInHex == "B94D27B9934D3E08A52E52D7DA7DABFAC484EFE37A5380EE9088F7ACE2EFCDE9" || 
-			_HashedStringInHex == "9E7574E019A7FB33B516772F9D5E854DDFC60004B36FF3FF9562B07326D2573F" || 
-			_HashedStringInHex == "F087A117ABD1CA60222F72639A5B3945E2CA83C4C8ECC3CD06B0F3B2081498CE" ||
-			_HashedStringInHex == "D93BECA6EFD0421B314C081066064AC0E371B306F715CC0935B2879E249BA9DF" ||
-			_HashedStringInHex == "096DF7313776EE3CAE836CFFCC5EFBD5D9B941113D377433F66BD49BDD4208D9" ||
-			_HashedStringInHex == "B3EFD5D2273A7F9DDBA983CA879F24A0D6CAF596F56A8C8FAB16FA85B6688BEA" ||
-			_HashedStringInHex == "67038B139D8CE3896C6553FAF6ADE7903B09EC2A87CAA68365939A7BEA76B68D" ||
-			_HashedStringInHex == "50380F922E8F5CD2391F6D2B799882CEB816345C38FE7D0210F5ABD6B15950E5" || 
-			_HashedStringInHex == "6C1E9F830562DC9CBC1F4DC8C47F2813653E6784F99461BF28118E249FA40286" ||
-			_HashedStringInHex == "14C8ADA07D94072087CBCC07723F95DB4421E49E0E39E9950B1F3D0BC8980EB6" ||
-			_HashedStringInHex == "36A9E7F1C95B82FFB99743E0C5C4CE95D83C9A430AAC59F84EF3CBFAB6145068" )
-		{ 
-			std::cout << "Successful\n"; 
-		}
-		else { std::cout << "Unsuccessful\n"; }
 	}
 }
 

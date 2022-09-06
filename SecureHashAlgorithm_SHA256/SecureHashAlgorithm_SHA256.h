@@ -17,7 +17,7 @@ struct MsgBlock {
 
 class SHA_256 {
 public:
-	SHA_256(std::string&);
+	SHA_256();
 	// Store the bits of the Message
 	void StoreMessageInASCII(std::string&);
 	// Parse Message into 512 BIT Blocks
@@ -28,6 +28,8 @@ public:
 	void MessageScheduleFromEachBlock();
 	// Compress Each Message Block, Returning that Hashed Value For each block
 	void CompressMessageBlock();
+	// Takes a string and computes the hash
+	std::string Digest(std::string inputStr);
 
 	// ---- Bitwise Operators ----
 	std::uint32_t RotateBitsRight(std::uint32_t, std::uint32_t);
