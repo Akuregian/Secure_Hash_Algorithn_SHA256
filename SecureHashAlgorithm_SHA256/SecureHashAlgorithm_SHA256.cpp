@@ -43,11 +43,34 @@ void SHA_256::Create512BitChunks() {
 		// ERROR: When String length == 63..
 		// Create block of 56 bytes [448 bits] with 64 bit reserve
 		if (counter % 64 == 0) {
+			// If Counter is greater than 56, We need a new block
+			if (counter == 64 && i == _InputMessage.size() - 1) {
 
-			// Add endBits
-			//for (std::size_t i = 0; i <= 7; i++) {
-			//	block->_512BitDataChunks[counter++] = endBits[i];
-			//}
+				// Creates a new Block
+				Block newBlock;
+				// new counter
+				int counter_1 = 0;
+				int overflow = 64 - counter;
+				// Add the overflow bytes to a new chunk
+				for (int i = 56; i < (56 + overflow); i++) {
+					newBlock._512BitDataChunks[counter_1++] = block->_512BitDataChunks[i];
+				}
+
+				// Pad new block
+				int K = (56 - counter_1);
+				for (std::size_t i = 0; i < K; i++) {
+					newBlock._512BitDataChunks[counter_1++] = std::uint8_t(0);
+				}
+
+				// Add endBits
+				for (std::size_t i = 0; i <= 7; i++) {
+					newBlock._512BitDataChunks[counter_1++] = endBits[i];
+				}
+
+				_blocks.push_back(*block);
+				_blocks.push_back(newBlock);
+				return;
+			}
 
 			// push_back the block
 			_blocks.push_back(*block);
@@ -68,24 +91,9 @@ void SHA_256::Create512BitChunks() {
 			// If Counter is greater than 56, We need a new block
 			if (counter > 56) {
 				std::cout << "Need a New Block\n";
-				Block* newBlock = new Block();
-				int counter_1 = 0;
-				for (int i = 56; i < 64; i++) {
-					newBlock->_512BitDataChunks[counter_1] = block->_512BitDataChunks[i];
-				}
-
-				// Pad new block
-				int K = (56 - counter_1);
-				for (std::size_t i = 0; i < K; i++) {
-					newBlock->_512BitDataChunks[counter_1++] = std::uint8_t(0);
-				}
-
-				// Add endBits
-				for (std::size_t i = 0; i <= 7; i++) {
-					newBlock->_512BitDataChunks[counter_1++] = endBits[i];
-				}
+				Block newBlock = CreateNew512BitChunk(block, endBits, true);
 				_blocks.push_back(*block);
-				_blocks.push_back(*newBlock);
+				_blocks.push_back(newBlock);
 				return;
 			}
 
@@ -99,6 +107,33 @@ void SHA_256::Create512BitChunks() {
 		//	delete block;
 		}
 	}
+}
+
+Block SHA_256::CreateNew512BitChunk(Block* block, std::deque<std::uint8_t>& endBits, bool addEndBits) {
+
+	// Creates a new Block
+	Block newBlock;
+	// new counter
+	int counter_1 = 0;
+	// Add the overflow bytes to a new chunk
+	for (int i = 56; i < 64; i++) {
+		newBlock._512BitDataChunks[counter_1] = block->_512BitDataChunks[i];
+	}
+
+	// Pad new block
+	int K = (56 - counter_1);
+	for (std::size_t i = 0; i < K; i++) {
+		newBlock._512BitDataChunks[counter_1++] = std::uint8_t(0);
+	}
+
+	if (addEndBits) {
+		// Add endBits
+		for (std::size_t i = 0; i <= 7; i++) {
+			newBlock._512BitDataChunks[counter_1++] = endBits[i];
+		}
+	}
+
+	return newBlock;
 }
 
 void SHA_256::MessageScheduleFromEachBlock() {

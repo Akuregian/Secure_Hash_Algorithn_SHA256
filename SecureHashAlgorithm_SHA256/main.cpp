@@ -1,9 +1,6 @@
 #include <iostream>
 #include "SecureHashAlgorithm_SHA256.h"
 
-// ERROR:
-//	Whenever the input string is exactly 63 bits long, we get an error....
-
 int main()
 {
 	// These Sets if strings work....

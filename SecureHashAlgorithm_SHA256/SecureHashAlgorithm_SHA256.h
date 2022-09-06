@@ -22,6 +22,8 @@ public:
 	void StoreMessageInASCII(std::string&);
 	// Parse Message into 512 BIT Blocks
 	void Create512BitChunks();
+	// Create new Chunk when Chunk exceeds 56 Bytes
+	Block CreateNew512BitChunk(Block* block, std::deque<std::uint8_t>& endBits, bool addEndBits);
 	// Parse Chunks for Message Schedule
 	void MessageScheduleFromEachBlock();
 	// Compress Each Message Block, Returning that Hashed Value For each block
