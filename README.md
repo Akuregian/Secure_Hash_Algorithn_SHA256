@@ -1,4 +1,4 @@
-﻿How to use:
+﻿## How to use:
 ```c++
 	// Initialize the class
 	std::shared_ptr<SHA_256> sha256 = std::make_shared<SHA_256>();
@@ -13,15 +13,15 @@
 Secure Hash Algorithm 2 (SHA-2) in which SHA-256 is a part of, is one of the most popular hashing algorithm
 that was devoloped by the National Security Agency (NSA)
 
-What Is a Hash Function?
-Three Main Purposes for Hash functions are:
-	1. To Scramble Data Deterministically.
-	2. To Accept input of any length and recieve an output of a fixed length
-	3. To Irreversibly Manipulate Data. The Input Cannot be derived from the Output.
+## What Is a Hash Function?
+Three Main Purposes for Hash functions are:  
+	1. To Scramble Data Deterministically.  
+	2. To Accept input of any length and recieve an output of a fixed length  
+	3. To Irreversibly Manipulate Data. The Input Cannot be derived from the Output.  
 
-Steps to Achieve SHA-256 Algorithm:
+## Steps to Achieve SHA-256 Algorithm:
 
-	PSUEDOCODE
+#	PSUEDOCODE
 	---------------------------------- Initialization -----------------------------------
 	Note 1: All variables are 32 bit unsigned integers and addition is calculated modulo 2^32
 	Note 2: For each round, there is one round constant k[i] and one entry in the message schedule array w[i], 0 ≤ i ≤ 63
